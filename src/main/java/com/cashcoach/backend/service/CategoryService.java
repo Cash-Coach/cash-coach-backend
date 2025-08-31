@@ -5,6 +5,7 @@ import com.cashcoach.backend.entity.Category;
 import com.cashcoach.backend.entity.Profile;
 import com.cashcoach.backend.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,6 +59,26 @@ public class CategoryService {
         userCategory.setIcon(categoryDTO.getIcon());
         userCategory = categoryRepository.save(userCategory);
         return toDTO(userCategory);
+    }
+
+    public void deleteCategory(Long categoryId) {
+        Profile userProfile = profileService.getCurrentProfile();
+        Category deletedCategory = categoryRepository.findByIdAndProfileId(categoryId, userProfile.getId())
+                .orElseThrow(() -> new RuntimeException("The category either cannot be found or cannot be accessed"));
+        if (!deletedCategory.getProfile().getId().equals(userProfile.getId())) {
+            throw new RuntimeException("Not authorized to delete this income");
+        }
+
+        try {
+            categoryRepository.delete(deletedCategory);
+        } catch (DataIntegrityViolationException e) {
+            // Check if it's a foreign key constraint violation
+            if (e.getCause() != null) {
+                throw new RuntimeException("You must delete all transactions relating to this category before you delete it");
+            }
+            // Re-throw if it's a different type of data integrity issue
+            throw e;
+        }
     }
 
     // helper methods
