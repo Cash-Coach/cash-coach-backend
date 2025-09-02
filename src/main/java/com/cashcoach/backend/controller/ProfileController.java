@@ -60,4 +60,10 @@ public class ProfileController {
         return ResponseEntity.ok(profileDTO);
     }
 
+    @PutMapping("/profile-pic/{profileId}")
+    public ResponseEntity<ProfileDTO> updateProfile(@PathVariable Long profileId, @RequestBody ProfileDTO profileDTO) {
+        ProfileDTO updatedProfile = profileService.updateProfile(profileId, profileDTO);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
 }

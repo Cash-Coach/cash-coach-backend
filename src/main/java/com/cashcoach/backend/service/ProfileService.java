@@ -1,7 +1,9 @@
 package com.cashcoach.backend.service;
 
 import com.cashcoach.backend.dto.AuthDTO;
+import com.cashcoach.backend.dto.CategoryDTO;
 import com.cashcoach.backend.dto.ProfileDTO;
+import com.cashcoach.backend.entity.Category;
 import com.cashcoach.backend.entity.Profile;
 import com.cashcoach.backend.repository.ProfileRepository;
 import com.cashcoach.backend.util.JwtUtil;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,6 +50,19 @@ public class ProfileService {
         emailService.sendEmail(userEmailAddress, subject, body);
 
         return profileDTO;
+    }
+
+    public ProfileDTO updateProfile(Long profileId, ProfileDTO profileDTO) {
+        // Get the profile directly - findById already returns Optional
+        Profile userProfile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("The profile either cannot be found or cannot be accessed"));
+
+        // Update the profile directly
+        userProfile.setProfilePicUrl(profileDTO.getProfilePicUrl());
+
+        // Save and return
+        Profile savedProfile = profileRepository.save(userProfile);
+        return toDTO(savedProfile);
     }
 
     public Profile toEntity(ProfileDTO profileDTO) {
