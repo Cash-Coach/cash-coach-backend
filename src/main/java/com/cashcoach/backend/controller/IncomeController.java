@@ -28,6 +28,12 @@ public class IncomeController {
         return ResponseEntity.ok(incomes);
     }
 
+    @PutMapping("/{incomeId}")
+    public ResponseEntity<IncomeDTO> updateIncome(@PathVariable Long incomeId, @RequestBody IncomeDTO incomeDTO) {
+        IncomeDTO updatedIncome = incomeService.updateIncome(incomeId, incomeDTO);
+        return ResponseEntity.ok(updatedIncome);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteIncome(@PathVariable Long id) {
         incomeService.deleteIncome(id);

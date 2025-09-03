@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,6 +40,22 @@ public class IncomeService {
         LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
         List<Income> currMonthIncomes = incomeRepository.findByProfileIdAndDateBetween(userProfile.getId(), startDate, endDate);
         return currMonthIncomes.stream().map(this::toDTO).toList();
+    }
+
+    public IncomeDTO updateIncome(Long incomeId, IncomeDTO incomeDTO) {
+        Profile userProfile = profileService.getCurrentProfile();
+        Income inc = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new RuntimeException("Income not found"));
+        Category category = categoryRepository.findById(incomeDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        inc.setIcon(incomeDTO.getIcon());
+        inc.setName(incomeDTO.getName());
+        inc.setCategory(category);
+        inc.setAmount(incomeDTO.getAmount());
+        inc.setDate(incomeDTO.getDate());
+        inc.setUpdatedAt(LocalDateTime.now());
+        inc = incomeRepository.save(inc);
+        return toDTO(inc);
     }
 
     // Delete income by id for current user

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,6 +41,22 @@ public class ExpenseService {
         LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
         List<Expense> currMonthExpenses = expenseRepository.findByProfileIdAndDateBetween(userProfile.getId(), startDate, endDate);
         return currMonthExpenses.stream().map(this::toDTO).toList();
+    }
+
+    public ExpenseDTO updateExpense(Long expenseId, ExpenseDTO expenseDTO) {
+        Profile userProfile = profileService.getCurrentProfile();
+        Expense exp = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+        Category category = categoryRepository.findById(expenseDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        exp.setIcon(expenseDTO.getIcon());
+        exp.setName(expenseDTO.getName());
+        exp.setCategory(category);
+        exp.setAmount(expenseDTO.getAmount());
+        exp.setDate(expenseDTO.getDate());
+        exp.setUpdatedAt(LocalDateTime.now());
+        exp = expenseRepository.save(exp);
+        return toDTO(exp);
     }
 
     // Delete expense by id for current user

@@ -57,6 +57,7 @@ public class CategoryService {
                 .orElseThrow(() -> new RuntimeException("The category either cannot be found or cannot be accessed"));
         userCategory.setName(categoryDTO.getName());
         userCategory.setIcon(categoryDTO.getIcon());
+        userCategory.setUpdatedAt(LocalDateTime.now());
         userCategory = categoryRepository.save(userCategory);
         return toDTO(userCategory);
     }
